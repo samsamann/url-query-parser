@@ -10,6 +10,7 @@ func TestParserParse(t *testing.T) {
 		s string
 	}{
 		{s: `filter[foo][EQ]=bar`},
+		{s: `filter[number][EQ]=123`},
 		{s: `sort=bar`},
 		{s: `sort=-foo`},
 		{s: `sort=foo,-bar`},
@@ -22,10 +23,9 @@ func TestParserParse(t *testing.T) {
 
 	for _, tt := range tests {
 		p := NewParser(strings.NewReader(tt.s))
-		querySpec, err := p.Parse()
+		_, err := p.Parse()
 		if err != nil {
 			t.Error(err)
 		}
-		t.Log(querySpec)
 	}
 }

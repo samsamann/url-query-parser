@@ -94,16 +94,16 @@ func (p *Parser) Parse() (*QuerySpec, error) {
 				return nil, err
 			}
 		case INCLUDE:
-			sortSpecs, err := p.parseSortSpec()
+			sortSpecs, err := p.parseIncludeSpec()
 			if err != nil {
 				return nil, err
 			}
-			querySpec.Sort = append(querySpec.Sort, sortSpecs...)
+			querySpec.IncludeSpec = append(querySpec.IncludeSpec, sortSpecs...)
 		default:
 			return nil, tokenError(lit, tokenMapToSlice(keywords)...)
 		}
 
-		tok, lit = p.scan()
+		tok, _ = p.scan()
 		if tok != AMPERSAND {
 			break
 		}
@@ -133,7 +133,7 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 	}
 
 	tok, lit := p.scan()
-	if tok != IDENT {
+	if tok != IDENT && !isPageKeyword(tok) {
 		return nil, tokenError(lit, "field name", "field path")
 	}
 	filterSpec.Field = lit
@@ -161,7 +161,7 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 	}
 
 	tok, lit = p.scan()
-	if tok != IDENT && !isOperator(tok) {
+	if tok != IDENT && tok != INT && !isOperator(tok) {
 		return nil, tokenError(lit, "value")
 	}
 	filterSpec.Value = lit
@@ -189,7 +189,7 @@ func (p *Parser) parseSortSpec() ([]*SortSpec, error) {
 			return nil, tokenError(lit, general[DASH], general[IDENT])
 		}
 		sortSpecs = append(sortSpecs, sort)
-		if tok, lit = p.scan(); tok != COMMA {
+		if tok, _ = p.scan(); tok != COMMA {
 			p.unscan()
 			break
 		}
@@ -236,7 +236,7 @@ func (p *Parser) parseFieldSpec(fieldSpec FieldSpec) error {
 		return tokenError(lit, general[BRACKET_OPEN])
 	}
 	tok, lit := p.scan()
-	if tok != IDENT && !isOperator(tok) {
+	if tok != IDENT && !isOperator(tok) && !isPageKeyword(tok) {
 		return tokenError(lit, "type")
 	}
 	entityType := lit
@@ -263,7 +263,7 @@ func (p *Parser) parseFieldSpec(fieldSpec FieldSpec) error {
 			return tokenError(lit, general[DASH], general[IDENT])
 		}
 		fieldSpec[entityType] = append(fieldSpec[entityType], field)
-		if tok, lit = p.scan(); tok != COMMA {
+		if tok, _ = p.scan(); tok != COMMA {
 			p.unscan()
 			break
 		}
@@ -271,12 +271,12 @@ func (p *Parser) parseFieldSpec(fieldSpec FieldSpec) error {
 	return nil
 }
 
-func (p *Parser) parseIncludeSpec() ([]string, error) {
+func (p *Parser) parseIncludeSpec() (IncludeSpec, error) {
 	if tok, lit := p.scan(); tok != ASSIGN {
 		return nil, tokenError(lit, general[ASSIGN])
 	}
 
-	includeSpecs := make([]string, 0)
+	includeSpecs := make(IncludeSpec, 0)
 	for {
 		tok, lit := p.scan()
 		include := lit
@@ -284,7 +284,7 @@ func (p *Parser) parseIncludeSpec() ([]string, error) {
 			return nil, tokenError(lit, general[DASH], general[IDENT])
 		}
 		includeSpecs = append(includeSpecs, include)
-		if tok, lit = p.scan(); tok != COMMA {
+		if tok, _ = p.scan(); tok != COMMA {
 			p.unscan()
 			break
 		}
