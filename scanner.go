@@ -109,6 +109,14 @@ func (s *Scanner) scanIdent() (tok Token, lit string) {
 		return NEQUAL, buf.String()
 	case operators[LIKE]:
 		return LIKE, buf.String()
+	case operators[LT]:
+		return LT, buf.String()
+	case operators[LE]:
+		return LE, buf.String()
+	case operators[GT]:
+		return GT, buf.String()
+	case operators[GE]:
+		return GE, buf.String()
 	}
 
 	switch buf.String() {

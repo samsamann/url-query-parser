@@ -33,6 +33,10 @@ const (
 	EQUAL
 	NEQUAL
 	LIKE
+	LT
+	LE
+	GT
+	GE
 )
 
 var general = map[Token]string{
@@ -69,4 +73,8 @@ var operators = map[Token]string{
 	EQUAL:  "EQ",
 	NEQUAL: "NEQ",
 	LIKE:   "LIKE",
+	LT:     "LT",
+	LE:     "LE",
+	GT:     "GT",
+	GE:     "GE",
 }
