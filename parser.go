@@ -7,49 +7,6 @@ import (
 	"strings"
 )
 
-type QuerySpec struct {
-	Field       FieldSpec
-	Filter      []*FilterSpec
-	Sort        []*SortSpec
-	PageSpec    *PageSpec
-	IncludeSpec IncludeSpec
-}
-
-func NewQuerySpec() *QuerySpec {
-	querySpec := new(QuerySpec)
-	querySpec.Field = make(FieldSpec)
-	querySpec.Filter = make([]*FilterSpec, 0)
-	querySpec.PageSpec = NewPageSpec()
-	querySpec.Sort = make([]*SortSpec, 0)
-	return querySpec
-}
-
-type FieldSpec map[string][]string
-
-type FilterSpec struct {
-	Field    string
-	Operator string
-	Value    string
-}
-
-type SortSpec struct {
-	Field string
-	Desc  bool
-}
-
-type PageSpec struct {
-	Offset int
-	Limit  int
-	Number int
-	Size   int
-}
-
-func NewPageSpec() *PageSpec {
-	return &PageSpec{Offset: -1, Limit: -1, Number: -1, Size: -1}
-}
-
-type IncludeSpec []string
-
 // Parser represents a parser.
 type Parser struct {
 	s   *Scanner
