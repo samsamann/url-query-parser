@@ -34,14 +34,15 @@ func (f FilterSpec) String() string {
 type IncludeSpec []string
 
 type PageSpec struct {
-	Offset int
-	Limit  int
-	Number int
-	Size   int
+	Offset          int
+	Limit           int
+	Number          int
+	Size            int
+	defaultPageSize uint
 }
 
-func NewPageSpec() *PageSpec {
-	return &PageSpec{Offset: -1, Limit: -1, Number: -1, Size: -1}
+func NewPageSpec(defaultPageSize uint) *PageSpec {
+	return &PageSpec{Offset: -1, Limit: -1, Number: -1, Size: -1, defaultPageSize: defaultPageSize}
 }
 
 func (p PageSpec) String() string {
@@ -64,6 +65,8 @@ func (p PageSpec) Pointer() (limit, offset int) {
 	} else if p.isPageBased() {
 		offset = p.Size * (p.Number - 1)
 		limit = p.Size
+	} else {
+		limit = int(p.defaultPageSize)
 	}
 	return
 }
@@ -98,10 +101,14 @@ type QuerySpec struct {
 }
 
 func NewQuerySpec() *QuerySpec {
+	return NewQuerySpecWithPageSize(0)
+}
+
+func NewQuerySpecWithPageSize(defaultPageSize uint) *QuerySpec {
 	querySpec := new(QuerySpec)
 	querySpec.Field = make(FieldSpec)
 	querySpec.Filter = make([]*FilterSpec, 0)
-	querySpec.PageSpec = NewPageSpec()
+	querySpec.PageSpec = NewPageSpec(defaultPageSize)
 	querySpec.Sort = make([]*SortSpec, 0)
 	return querySpec
 }
