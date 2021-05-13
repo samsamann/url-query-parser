@@ -31,7 +31,25 @@ func (f FilterSpec) String() string {
 	return fmt.Sprintf("%s[%s][%s]=%s", general[FILTER], f.Field, f.Operator, f.Value)
 }
 
-type IncludeSpec []string
+type Path interface {
+	Segment() string
+	SubSegement() Path
+}
+
+type pathElement struct {
+	segemnt string
+	child   Path
+}
+
+func (e pathElement) Segment() string {
+	return e.segemnt
+}
+
+func (e pathElement) SubSegement() Path {
+	return e.child
+}
+
+type IncludeSpec []Path
 
 type PageSpec struct {
 	Offset          int

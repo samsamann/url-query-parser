@@ -18,7 +18,10 @@ func TestParserParse(t *testing.T) {
 		{s: `page[number]=1&page[size]=10`},
 		{s: `field[type1]`},
 		{s: `field[type1]=field1,field2`},
+		{s: `include=foo`},
 		{s: `include=foo,bar`},
+		{s: `include=foo.bar`},
+		{s: `include=first.foo.bar,second`},
 	}
 
 	for _, tt := range tests {

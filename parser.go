@@ -98,10 +98,10 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 		return nil, tokenError(lit, general[BRACKET_OPEN])
 	}
 
-	tok, lit := p.scan()
+		tok, lit := p.scan()
 	if tok != IDENT && !isPageKeyword(tok) {
-		return nil, tokenError(lit, "field name", "field path")
-	}
+			return nil, tokenError(lit, "field name", "field path")
+		}
 	filterSpec.Field = lit
 
 	if tok, lit := p.scan(); tok != BRACKET_CLOSE {
@@ -243,17 +243,39 @@ func (p *Parser) parseIncludeSpec() (IncludeSpec, error) {
 	}
 
 	includeSpecs := make(IncludeSpec, 0)
-	for {
-		tok, lit := p.scan()
-		include := lit
-		if tok == IDENT {
-			return nil, tokenError(lit, general[DASH], general[IDENT])
-		}
-		includeSpecs = append(includeSpecs, include)
-		if tok, _ = p.scan(); tok != COMMA {
+
+	buildPath := func(parent *pathElement, seg string) *pathElement {
+		newSeg := &pathElement{segemnt: seg}
+		parent.child = newSeg
+		return newSeg
+	}
+
+	tok, lit := p.scan()
+	if tok == IDENT {
+		for {
+			var rootElement pathElement = pathElement{}
+			var nextSeq = buildPath(&rootElement, lit)
+			tok, lit = p.scan()
+			for {
+				if tok == IDENT || isPageKeyword(tok) {
+					nextSeq = buildPath(nextSeq, lit)
+					tok, lit = p.scan()
+				} else if tok == DOT {
+					tok, lit = p.scan()
+				} else {
+					break
+				}
+			}
+			includeSpecs = append(includeSpecs, rootElement)
+			if tok == COMMA {
+				p.scan()
+				continue
+			}
 			p.unscan()
 			break
 		}
+	} else {
+		return nil, tokenError(lit, general[IDENT])
 	}
 	return includeSpecs, nil
 }

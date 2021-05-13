@@ -51,6 +51,8 @@ func (s *Scanner) Scan() (Token, string) {
 		return DASH, string(ch)
 	case ',':
 		return COMMA, string(ch)
+	case '.':
+		return DOT, string(ch)
 	}
 
 	return ILLEGAL, string(ch)

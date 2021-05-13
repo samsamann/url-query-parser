@@ -15,6 +15,7 @@ const (
 	BRACKET_CLOSE
 	COMMA
 	DASH
+	DOT
 
 	// keywords
 	FIELD
@@ -52,6 +53,7 @@ var general = map[Token]string{
 	BRACKET_CLOSE: "]",
 	COMMA:         ",",
 	DASH:          "-",
+	DOT:           ".",
 }
 
 var keywords = map[Token]string{
