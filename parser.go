@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+const (
+	DEFAULT_PAGE_SIZE uint = 20
+	MAX_PAGE_SIZE     uint = 100
+)
+
 // Parser represents a parser.
 type Parser struct {
 	s   *Scanner
@@ -22,9 +27,13 @@ func NewParser(r io.Reader) *Parser {
 	return &Parser{s: NewScanner(r)}
 }
 
-// Parse parses a query string
 func (p *Parser) Parse() (*QuerySpec, error) {
-	querySpec := NewQuerySpec()
+	return p.ParseWithPS(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
+}
+
+// Parse parses a query string
+func (p *Parser) ParseWithPS(defaultPageSize, maxPageSize uint) (*QuerySpec, error) {
+	querySpec := NewQuerySpec(defaultPageSize, maxPageSize)
 	tok, lit := p.scanIgnoreWhitespace()
 	for tok != EOF {
 		switch tok {

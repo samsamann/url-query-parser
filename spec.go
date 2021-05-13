@@ -39,14 +39,22 @@ type PageSpec struct {
 	Number          int
 	Size            int
 	defaultPageSize uint
+	maxPageSize     uint
 }
 
-func NewPageSpec(defaultPageSize uint) *PageSpec {
-	return &PageSpec{Offset: -1, Limit: -1, Number: -1, Size: -1, defaultPageSize: defaultPageSize}
+func NewPageSpec(defaultPageSize, maxPageSize uint) *PageSpec {
+	return &PageSpec{
+		Offset:          -1,
+		Limit:           -1,
+		Number:          -1,
+		Size:            -1,
+		defaultPageSize: defaultPageSize,
+		maxPageSize:     maxPageSize,
+	}
 }
 
 func (p PageSpec) String() string {
-	if p.isPointerBased() {
+	if p.isOffsetBased() {
 		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[OFFSET], p.Offset) +
 			general[AMPERSAND] +
 			fmt.Sprintf("%s[%s]=%d", general[PAGE], general[LIMIT], p.Limit)
@@ -54,24 +62,31 @@ func (p PageSpec) String() string {
 		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[NUMBER], p.Number) +
 			general[AMPERSAND] +
 			fmt.Sprintf("%s[%s]=%d", general[PAGE], general[SIZE], p.Size)
+	} else if p.Offset >= 0 {
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[OFFSET], p.Offset)
+	} else if p.Limit >= 0 {
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[LIMIT], p.Limit)
 	}
 	return ""
 }
 
-func (p PageSpec) Pointer() (limit, offset int) {
-	if p.isPointerBased() {
-		offset = p.Offset
-		limit = p.Limit
+func (p PageSpec) PageOffset() (limit, offset uint) {
+	if p.isOffsetBased() {
+		offset = uint(p.Offset)
+		limit = uint(p.Limit)
 	} else if p.isPageBased() {
-		offset = p.Size * (p.Number - 1)
-		limit = p.Size
+		offset = uint(p.Size * (p.Number - 1))
+		limit = uint(p.Size)
 	} else {
-		limit = int(p.defaultPageSize)
+		limit = p.defaultPageSize
+	}
+	if limit > p.maxPageSize {
+		limit = p.maxPageSize
 	}
 	return
 }
 
-func (p PageSpec) isPointerBased() bool {
+func (p PageSpec) isOffsetBased() bool {
 	return p.Offset > -1 && p.Limit > -1
 }
 
@@ -100,15 +115,11 @@ type QuerySpec struct {
 	Sort        []*SortSpec
 }
 
-func NewQuerySpec() *QuerySpec {
-	return NewQuerySpecWithPageSize(0)
-}
-
-func NewQuerySpecWithPageSize(defaultPageSize uint) *QuerySpec {
+func NewQuerySpec(defaultPageSize, maxPageSize uint) *QuerySpec {
 	querySpec := new(QuerySpec)
 	querySpec.Field = make(FieldSpec)
 	querySpec.Filter = make([]*FilterSpec, 0)
-	querySpec.PageSpec = NewPageSpec(defaultPageSize)
+	querySpec.PageSpec = NewPageSpec(defaultPageSize, maxPageSize)
 	querySpec.Sort = make([]*SortSpec, 0)
 	return querySpec
 }
