@@ -55,19 +55,21 @@ func NewPageSpec(defaultPageSize, maxPageSize uint) *PageSpec {
 
 func (p PageSpec) String() string {
 	if p.isOffsetBased() {
-		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[OFFSET], p.Offset) +
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[OFFSET], p.Offset) +
 			general[AMPERSAND] +
-			fmt.Sprintf("%s[%s]=%d", general[PAGE], general[LIMIT], p.Limit)
+			fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[LIMIT], p.Limit)
 	} else if p.isPageBased() {
-		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[NUMBER], p.Number) +
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[NUMBER], p.Number) +
 			general[AMPERSAND] +
-			fmt.Sprintf("%s[%s]=%d", general[PAGE], general[SIZE], p.Size)
+			fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[SIZE], p.Size)
 	} else if p.Offset >= 0 {
-		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[OFFSET], p.Offset)
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[OFFSET], p.Offset) +
+			general[AMPERSAND] +
+			fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[LIMIT], p.defaultPageSize)
 	} else if p.Limit >= 0 {
-		return fmt.Sprintf("%s[%s]=%d", general[PAGE], general[LIMIT], p.Limit)
+		return fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[LIMIT], p.Limit)
 	}
-	return ""
+	return fmt.Sprintf("%s[%s]=%d", general[PAGE], pageKeywords[LIMIT], p.defaultPageSize)
 }
 
 func (p PageSpec) PageOffset() (limit, offset uint) {
@@ -77,6 +79,8 @@ func (p PageSpec) PageOffset() (limit, offset uint) {
 	} else if p.isPageBased() {
 		offset = uint(p.Size * (p.Number - 1))
 		limit = uint(p.Size)
+	} else if p.Limit > -1 {
+		limit = uint(p.Limit)
 	} else {
 		limit = p.defaultPageSize
 	}
