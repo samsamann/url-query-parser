@@ -98,10 +98,10 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 		return nil, tokenError(lit, general[BRACKET_OPEN])
 	}
 
-		tok, lit := p.scan()
+	tok, lit := p.scan()
 	if tok != IDENT && !isPageKeyword(tok) {
-			return nil, tokenError(lit, "field name", "field path")
-		}
+		return nil, tokenError(lit, "field name", "field path")
+	}
 	filterSpec.Field = lit
 
 	if tok, lit := p.scan(); tok != BRACKET_CLOSE {
@@ -253,7 +253,7 @@ func (p *Parser) parseIncludeSpec() (IncludeSpec, error) {
 	tok, lit := p.scan()
 	if tok == IDENT {
 		for {
-			var rootElement pathElement = pathElement{}
+			var rootElement pathElement = pathElement{segemnt: "."}
 			var nextSeq = buildPath(&rootElement, lit)
 			tok, lit = p.scan()
 			for {
@@ -268,7 +268,7 @@ func (p *Parser) parseIncludeSpec() (IncludeSpec, error) {
 			}
 			includeSpecs = append(includeSpecs, rootElement)
 			if tok == COMMA {
-				p.scan()
+				_, lit = p.scan()
 				continue
 			}
 			p.unscan()
