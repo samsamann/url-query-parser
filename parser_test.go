@@ -11,6 +11,8 @@ func TestParserParse(t *testing.T) {
 	}{
 		{s: `filter[foo][EQ]=bar`},
 		{s: `filter[number][EQ]=123`},
+		{s: `filter[a.b][EQ]=123`},
+		{s: `filter[p.a.t.h][LIKE]=123`},
 		{s: `sort=bar`},
 		{s: `sort=-foo`},
 		{s: `sort=foo,-bar`},

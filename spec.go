@@ -22,7 +22,7 @@ func (f FieldSpec) String() string {
 }
 
 type FilterSpec struct {
-	Field    string
+	Field    Path
 	Operator string
 	Value    string
 }
@@ -32,6 +32,7 @@ func (f FilterSpec) String() string {
 }
 
 type Path interface {
+	fmt.Stringer
 	Segment() string
 	SubSegement() Path
 }
@@ -39,6 +40,14 @@ type Path interface {
 type pathElement struct {
 	segemnt string
 	child   Path
+}
+
+func (e pathElement) String() string {
+	retVal := e.segemnt
+	if e.child != nil {
+		retVal += "." + e.child.String()
+	}
+	return retVal
 }
 
 func (e pathElement) Segment() string {
@@ -50,6 +59,14 @@ func (e pathElement) SubSegement() Path {
 }
 
 type IncludeSpec []Path
+
+func (i IncludeSpec) String() string {
+	paths := make([]string, 0)
+	for _, p := range i {
+		paths = append(paths, p.String())
+	}
+	return strings.Join(paths, ",")
+}
 
 type PageSpec struct {
 	Offset          int

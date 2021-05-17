@@ -98,11 +98,32 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 		return nil, tokenError(lit, general[BRACKET_OPEN])
 	}
 
+	buildPath := func(parent *pathElement, seg string) *pathElement {
+		newSeg := &pathElement{segemnt: seg}
+		parent.child = newSeg
+		return newSeg
+	}
+
 	tok, lit := p.scan()
-	if tok != IDENT && !isPageKeyword(tok) {
+	if tok == IDENT || isPageKeyword(tok) {
+		var rootElement pathElement = pathElement{segemnt: "."}
+		var nextSeq = buildPath(&rootElement, lit)
+		tok, lit = p.scan()
+		for {
+			if tok == IDENT || isPageKeyword(tok) {
+				nextSeq = buildPath(nextSeq, lit)
+				tok, lit = p.scan()
+			} else if tok == DOT {
+				tok, lit = p.scan()
+			} else {
+				p.unscan()
+				break
+			}
+		}
+		filterSpec.Field = rootElement
+	} else {
 		return nil, tokenError(lit, "field name", "field path")
 	}
-	filterSpec.Field = lit
 
 	if tok, lit := p.scan(); tok != BRACKET_CLOSE {
 		return nil, tokenError(lit, general[BRACKET_CLOSE])
@@ -251,7 +272,7 @@ func (p *Parser) parseIncludeSpec() (IncludeSpec, error) {
 	}
 
 	tok, lit := p.scan()
-	if tok == IDENT {
+	if tok == IDENT || isPageKeyword(tok) {
 		for {
 			var rootElement pathElement = pathElement{segemnt: "."}
 			var nextSeq = buildPath(&rootElement, lit)
