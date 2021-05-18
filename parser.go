@@ -148,10 +148,15 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 	}
 
 	tok, lit = p.scan()
-	if tok != IDENT && tok != INT && !isOperator(tok) {
+	if tok != IDENT && tok != INT && !isOperator(tok) && !isPageKeyword(tok) {
 		return nil, tokenError(lit, "value")
 	}
-	filterSpec.Value = lit
+	val := lit
+	for !(tok == AMPERSAND || tok == EOF || tok == ILLEGAL) {
+		tok, lit = p.scan()
+		val += lit
+	}
+	filterSpec.Value = val
 
 	return filterSpec, nil
 }

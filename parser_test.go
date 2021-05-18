@@ -10,7 +10,8 @@ func TestParserParse(t *testing.T) {
 		s string
 	}{
 		{s: `filter[foo][EQ]=bar`},
-		{s: `filter[number][EQ]=123`},
+		{s: `filter[id][EQ]=24cb00fa-9f69-4107-852b-d7574dd217e4`},
+		{s: `filter[number][GT]=123`},
 		{s: `filter[a.b][EQ]=123`},
 		{s: `filter[p.a.t.h][LIKE]=123`},
 		{s: `sort=bar`},
