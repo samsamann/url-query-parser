@@ -158,6 +158,8 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 	}
 	filterSpec.Value = val
 
+	p.unscan()
+
 	return filterSpec, nil
 }
 
