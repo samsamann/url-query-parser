@@ -152,13 +152,15 @@ func (p *Parser) parseFilterSpec() (*FilterSpec, error) {
 		return nil, tokenError(lit, "value")
 	}
 	val := lit
-	for !(tok == AMPERSAND || tok == EOF || tok == ILLEGAL) {
+	for {
 		tok, lit = p.scan()
+		if tok == AMPERSAND || tok == EOF || tok == ILLEGAL {
+			p.unscan()
+			break
+		}
 		val += lit
 	}
 	filterSpec.Value = val
-
-	p.unscan()
 
 	return filterSpec, nil
 }
